@@ -184,8 +184,7 @@ void SolverImpl::solveNormalLagrange() {
         }
     }
 
-    if (soft_constraint_count == 0) {
-        // We don't have any soft constraint, use normal approach
+    if (soft_constraint_count == 0 || hard_constraint_count) {
         solveNormal();
         return;
     }
@@ -557,16 +556,6 @@ class Snapshot {
     }
 
     void solveLagrange() {
-        int variable_count = 0;
-        for (auto &it : _variables) {
-            if (!it.eliminated) {
-                it.location = variable_count;
-                variable_count++;
-            } else {
-                it.location = -1;
-            }
-        }
-
         // Construct A, B
         int constraint_count = 0;
         int soft_constraint_count = 0;
@@ -583,6 +572,20 @@ class Snapshot {
             } else {
                 soft_constraint_count++;
                 soft_triplet_count += it.items.size();
+            }
+        }
+        if (soft_constraint_count == 0 || hard_constraint_count == 0) {
+            solve();
+            return;
+        }
+
+        int variable_count = 0;
+        for (auto &it : _variables) {
+            if (!it.eliminated) {
+                it.location = variable_count;
+                variable_count++;
+            } else {
+                it.location = -1;
             }
         }
 
