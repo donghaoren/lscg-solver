@@ -1,0 +1,23 @@
+{
+  "name": "lscg-solver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/lscg-solver-umd.js",
+  "scripts": {
+    "build": "node build.js",
+    "test": "mocha test"
+  },
+  "readme": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/donghaoren/lscg-solver.git"
+  },
+  "author": "Donghao Ren <donghao.ren+npm@gmail.com> (https://donghaoren.org/)",
+  "license": "MIT",
+  "devDependencies": {
+    "multirun": "2.0.0",
+    "webpack": "3.11.0",
+    "mocha": "5.0.5",
+    "mocha-logger": "1.0.5"
+  }
+}
