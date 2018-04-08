@@ -1,7 +1,13 @@
 lscg-solver
 ====
 
-A linear least square solver using the [Conjugate Gradient](https://en.wikipedia.org/wiki/Conjugate_gradient_method) method. Uses the Eigen library, and compiled as WebAssembly for performance.
+A linear least square solver using the [Conjugate Gradient](https://en.wikipedia.org/wiki/Conjugate_gradient_method) method.
+
+- Solve sparse linear least square problems.
+- Solve sparse constrained linear least square problems using a lagrange method.
+- Decompose dense matrices with full pivot LU to obtain solution and kernel (null space).
+- Uses the Eigen library for sparse matrix computation and the conjugate gradient method.
+- Compiled into WebAssembly for performance.
 
 # Install
 
