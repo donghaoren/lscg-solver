@@ -28,6 +28,22 @@ EXPORT void solver_add_constraint_coefficient(solver_t solver, solver_constraint
     c->variable_names.push_back(variable_name);
 }
 
+EXPORT void solver_set_constraint_strength(solver_t solver, solver_constraint_t constraint,
+                                           int strength) {
+    Constraint *c = (Constraint *)constraint;
+    c->strength = strength;
+}
+EXPORT void solver_set_constraint_bias(solver_t solver, solver_constraint_t constraint,
+                                       number_t bias) {
+    Constraint *c = (Constraint *)constraint;
+    c->bias = bias;
+}
+EXPORT void solver_clear_constraint_coefficients(solver_t solver, solver_constraint_t constraint) {
+    Constraint *c = (Constraint *)constraint;
+    c->weights.clear();
+    c->variable_names.clear();
+}
+
 EXPORT void solver_set_value(solver_t solver, int variable_name, number_t value) {
     ((SolverImpl *)solver)->set_value(variable_name, value);
 }

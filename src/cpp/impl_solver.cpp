@@ -73,8 +73,10 @@ number_t strength_to_scale(int strength) {
         return 0.01;
     case kSolverStrength_WEAKER:
         return 0.001;
+    case kSolverStrength_DISABLED:
+        return 0;
     }
-    return 10;
+    return 0;
 }
 
 void SolverImpl::computeLoss() {
@@ -118,6 +120,8 @@ void SolverImpl::solveNormal() {
     for (int i = 0; i < constraint_count; ++i) {
         const Constraint &c = _constraints[i];
         number_t scaler = strength_to_scale(c.strength);
+        if (scaler == 0)
+            continue;
         number_t bias = c.bias * scaler;
         for (int j = 0; j < c.variable_names.size(); j++) {
             const Variable &var = _variables[c.variable_names[j]];
@@ -179,8 +183,10 @@ void SolverImpl::solveNormalLagrange() {
             hard_constraint_count++;
             hard_triplets += c.variable_names.size();
         } else {
-            soft_constraint_count++;
-            soft_triplets += c.variable_names.size();
+            if (c.strength != kSolverStrength_DISABLED) {
+                soft_constraint_count++;
+                soft_triplets += c.variable_names.size();
+            }
         }
     }
 
@@ -341,9 +347,12 @@ class Snapshot {
                 _variable_name_to_index[item.variable_name] = item.index;
             }
         }
-        _constraints.resize(constraints.size());
+        _constraints.reserve(constraints.size());
         int index = 0;
         for (auto &constraint : constraints) {
+            if (constraint.strength == kSolverStrength_DISABLED)
+                continue;
+            _constraints.push_back(ConstraintItem());
             ConstraintItem &item = _constraints[index];
             item.bias = constraint.bias;
             item.strength = constraint.strength;

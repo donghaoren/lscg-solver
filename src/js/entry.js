@@ -58,6 +58,7 @@ var kSolverStrength_STRONG = 1;
 var kSolverStrength_MEDIUM = 2;
 var kSolverStrength_WEAK = 3;
 var kSolverStrength_WEAKER = 4;
+var kSolverStrength_DISABLED = 10;
 
 var kSolverAttribute_NUM_ITERATIONS = 1;
 var kSolverAttribute_TOLERANCE = 2;
@@ -81,6 +82,9 @@ var solver_add_variable = internals.cwrap("solver_add_variable", null, ["number"
 var solver_make_constant = internals.cwrap("solver_make_constant", null, ["number", "number"]);
 var solver_add_constraint = internals.cwrap("solver_add_constraint", "number", ["number", "number", "number", "number", "number", "number"]);
 var solver_add_constraint_coefficient = internals.cwrap("solver_add_constraint_coefficient", null, ["number", "number", "number", "number"]);
+var solver_set_constraint_strength = internals.cwrap("solver_set_constraint_strength", null, ["number", "number", "number"]);
+var solver_set_constraint_bias = internals.cwrap("solver_set_constraint_bias", null, ["number", "number", "number"]);
+var solver_clear_constraint_coefficients = internals.cwrap("solver_clear_constraint_coefficients", null, ["number", "number"]);
 var solver_set_values = internals.cwrap("solver_set_values", null, ["number", "number", "number", "number"]);
 var solver_get_values = internals.cwrap("solver_get_values", null, ["number", "number", "number", "number"]);
 var solver_set_value = internals.cwrap("solver_set_value", null, ["number", "number", "number"]);
@@ -157,6 +161,7 @@ ConstraintSolver.STRENGTH_STRONG = kSolverStrength_STRONG;
 ConstraintSolver.STRENGTH_MEDIUM = kSolverStrength_MEDIUM;
 ConstraintSolver.STRENGTH_WEAK = kSolverStrength_WEAK;
 ConstraintSolver.STRENGTH_WEAKER = kSolverStrength_WEAKER;
+ConstraintSolver.STRENGTH_DISABLED = kSolverStrength_DISABLED;
 ConstraintSolver.FLAG_DEFAULT = kSolverFlag_DEFAULT;
 ConstraintSolver.FLAG_REDUCE = kSolverFlag_REDUCE;
 ConstraintSolver.FLAG_LAGRANGE = kSolverFlag_LAGRANGE;
@@ -187,6 +192,15 @@ ConstraintSolver.prototype.addConstraint = function (strength, bias, variable_na
 };
 ConstraintSolver.prototype.addConstraintCoefficient = function (constraint, variable_name, weight) {
     solver_add_constraint_coefficient(this.solver, constraint, variable_name, weight);
+};
+ConstraintSolver.prototype.setConstraintStrength = function (constraint, strength) {
+    solver_set_constraint_strength(this.solver, constraint, strength);
+};
+ConstraintSolver.prototype.setConstraintBias = function (constraint, bias) {
+    solver_set_constraint_bias(this.solver, constraint, bias);
+};
+ConstraintSolver.prototype.clearConstraintCoefficients = function (constraint) {
+    solver_clear_constraint_coefficients(this.solver, constraint);
 };
 ConstraintSolver.prototype.solve = function () {
     solver_solve(this.solver);

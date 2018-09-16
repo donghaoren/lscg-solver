@@ -12,6 +12,8 @@ export class ConstraintSolver {
     static STRENGTH_WEAK: number;
     /** Weaker constraint */
     static STRENGTH_WEAKER: number;
+    /** Disabled constraint */
+    static STRENGTH_DISABLED: number;
 
     /** Default flag (0) */
     static FLAG_DEFAULT: number;
@@ -35,6 +37,12 @@ export class ConstraintSolver {
     addConstraint(strength: number, bias: number, variable_names: number[], weights: number[]): Constraint;
     /** Add a coefficient to a given constraint */
     addConstraintCoefficient(constraint: Constraint, variable_name: number, weight: number): void;
+    /** Set the strength value of a constraint */
+    setConstraintStrength(constraint: Constraint, strength: number): void;
+    /** Set the bias value of a constraint */
+    setConstraintBias(constraint: Constraint, bias: number): void;
+    /** Clear the coefficients on a constraint */
+    clearConstraintCoefficients(constraint: Constraint): void;
     /** Set the value of a variable */
     setValue(variable_name: number, value: number): void;
     /** Get the value of a variable */
