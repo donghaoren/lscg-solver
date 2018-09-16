@@ -1,6 +1,6 @@
 {
   "name": "lscg-solver",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "",
   "main": "./dist/lscg-solver-umd.js",
   "scripts": {
