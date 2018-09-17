@@ -34,8 +34,9 @@ class SolverImpl {
 
     void add_variable(int variable_name, number_t value, bool edit);
     void make_constant(int variable_name);
-    Constraint *add_constraint(int strength, number_t bias, int count, int *variable_names,
-                               number_t *weights);
+    int add_constraint(int strength, number_t bias, int count, int *variable_names,
+                       number_t *weights);
+    Constraint *get_constraint(int i) { return &_constraints[i]; }
     void set_values(int count, const int *variable_names, const number_t *values);
     void get_values(int count, const int *variable_names, number_t *output);
     void set_value(int variable_name, number_t value);

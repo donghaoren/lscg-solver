@@ -20,7 +20,7 @@ void SolverImpl::add_variable(int name, number_t value, bool edit) {
 
 void SolverImpl::make_constant(int variable_name) { _variables[variable_name].edit = false; }
 
-Constraint *SolverImpl::add_constraint(int strength, number_t bias, int count, int *variable_names,
+int SolverImpl::add_constraint(int strength, number_t bias, int count, int *variable_names,
                                        number_t *weights) {
     Constraint c;
     c.strength = strength;
@@ -28,7 +28,7 @@ Constraint *SolverImpl::add_constraint(int strength, number_t bias, int count, i
     c.weights = std::vector<number_t>(weights, weights + count);
     c.variable_names = std::vector<int>(variable_names, variable_names + count);
     _constraints.push_back(c);
-    return &_constraints[_constraints.size() - 1];
+    return _constraints.size() - 1;
 }
 
 void SolverImpl::set_values(int count, const int *variable_names, const number_t *values) {
@@ -120,8 +120,6 @@ void SolverImpl::solveNormal() {
     for (int i = 0; i < constraint_count; ++i) {
         const Constraint &c = _constraints[i];
         number_t scaler = strength_to_scale(c.strength);
-        if (scaler == 0)
-            continue;
         number_t bias = c.bias * scaler;
         for (int j = 0; j < c.variable_names.size(); j++) {
             const Variable &var = _variables[c.variable_names[j]];
@@ -179,11 +177,11 @@ void SolverImpl::solveNormalLagrange() {
 
     for (int i = 0; i < constraint_count; ++i) {
         const Constraint &c = _constraints[i];
-        if (c.strength == kSolverStrength_HARD) {
-            hard_constraint_count++;
-            hard_triplets += c.variable_names.size();
-        } else {
-            if (c.strength != kSolverStrength_DISABLED) {
+        if (c.strength != kSolverStrength_DISABLED) {
+            if (c.strength == kSolverStrength_HARD) {
+                hard_constraint_count++;
+                hard_triplets += c.variable_names.size();
+            } else {
                 soft_constraint_count++;
                 soft_triplets += c.variable_names.size();
             }
@@ -217,7 +215,7 @@ void SolverImpl::solveNormalLagrange() {
         tripletList.reserve(soft_triplets);
         int index = 0;
         for (const Constraint &c : _constraints) {
-            if (c.strength == kSolverStrength_HARD) {
+            if (c.strength == kSolverStrength_HARD || c.strength == kSolverStrength_DISABLED) {
                 continue;
             }
             number_t scaler = strength_to_scale(c.strength);
@@ -241,7 +239,7 @@ void SolverImpl::solveNormalLagrange() {
         tripletList.reserve(hard_triplets);
         int index = 0;
         for (const Constraint &c : _constraints) {
-            if (c.strength != kSolverStrength_HARD) {
+            if (c.strength != kSolverStrength_HARD || c.strength == kSolverStrength_DISABLED) {
                 continue;
             }
             number_t scaler = strength_to_scale(c.strength);

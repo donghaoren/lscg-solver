@@ -14,32 +14,28 @@ EXPORT void solver_make_constant(solver_t solver, int variable_name) {
     ((SolverImpl *)solver)->make_constant(variable_name);
 }
 
-EXPORT solver_constraint_t solver_add_constraint(solver_t solver, int strength, number_t bias,
-                                                 int count, int *variable_names,
-                                                 number_t *weights) {
-    return (solver_constraint_t)(
-        ((SolverImpl *)solver)->add_constraint(strength, bias, count, variable_names, weights));
+EXPORT int solver_add_constraint(solver_t solver, int strength, number_t bias, int count,
+                                 int *variable_names, number_t *weights) {
+    return ((SolverImpl *)solver)->add_constraint(strength, bias, count, variable_names, weights);
 }
 
-EXPORT void solver_add_constraint_coefficient(solver_t solver, solver_constraint_t constraint,
-                                              int variable_name, number_t weight) {
-    Constraint *c = (Constraint *)constraint;
+EXPORT void solver_add_constraint_coefficient(solver_t solver, int constraint, int variable_name,
+                                              number_t weight) {
+    Constraint *c = ((SolverImpl *)solver)->get_constraint(constraint);
     c->weights.push_back(weight);
     c->variable_names.push_back(variable_name);
 }
 
-EXPORT void solver_set_constraint_strength(solver_t solver, solver_constraint_t constraint,
-                                           int strength) {
-    Constraint *c = (Constraint *)constraint;
+EXPORT void solver_set_constraint_strength(solver_t solver, int constraint, int strength) {
+    Constraint *c = ((SolverImpl *)solver)->get_constraint(constraint);
     c->strength = strength;
 }
-EXPORT void solver_set_constraint_bias(solver_t solver, solver_constraint_t constraint,
-                                       number_t bias) {
-    Constraint *c = (Constraint *)constraint;
+EXPORT void solver_set_constraint_bias(solver_t solver, int constraint, number_t bias) {
+    Constraint *c = ((SolverImpl *)solver)->get_constraint(constraint);
     c->bias = bias;
 }
-EXPORT void solver_clear_constraint_coefficients(solver_t solver, solver_constraint_t constraint) {
-    Constraint *c = (Constraint *)constraint;
+EXPORT void solver_clear_constraint_coefficients(solver_t solver, int constraint) {
+    Constraint *c = ((SolverImpl *)solver)->get_constraint(constraint);
     c->weights.clear();
     c->variable_names.clear();
 }

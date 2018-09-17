@@ -44,7 +44,6 @@ void linalg_solve_linear_system(matrix_t X, matrix_t ker, matrix_t A, matrix_t B
 // Constraint solver
 
 typedef struct solver__ *solver_t;
-typedef struct solver_constraint__ *solver_constraint_t;
 
 solver_t solver_create();
 void solver_destroy(solver_t solver);
@@ -74,13 +73,13 @@ const int kSolverFlag_LAGRANGE = 1 << 2;
 
 void solver_add_variable(solver_t solver, int variable_name, number_t value, bool edit);
 void solver_make_constant(solver_t solver, int variable_name);
-solver_constraint_t solver_add_constraint(solver_t solver, int strength, number_t bias, int count,
-                                          int *variable_names, number_t *weights);
-void solver_add_constraint_coefficient(solver_t solver, solver_constraint_t constraint,
-                                       int variable_name, number_t weight);
-void solver_set_constraint_strength(solver_t solver, solver_constraint_t constraint, int strength);
-void solver_set_constraint_bias(solver_t solver, solver_constraint_t constraint, number_t bias);
-void solver_clear_constraint_coefficients(solver_t solver, solver_constraint_t constraint);
+int solver_add_constraint(solver_t solver, int strength, number_t bias, int count,
+                          int *variable_names, number_t *weights);
+void solver_add_constraint_coefficient(solver_t solver, int constraint, int variable_name,
+                                       number_t weight);
+void solver_set_constraint_strength(solver_t solver, int constraint, int strength);
+void solver_set_constraint_bias(solver_t solver, int constraint, number_t bias);
+void solver_clear_constraint_coefficients(solver_t solver, int constraint);
 void solver_set_value(solver_t solver, int variable_name, number_t value);
 number_t solver_get_value(solver_t solver, int variable_name);
 void solver_set_values(solver_t solver, int count, const int *variable_names,
