@@ -1,6 +1,8 @@
 #include "impl_solver.h"
+#include "lscg.h"
 #include "lscg_constrained.h"
 #include "third_party.h"
+#include <iostream>
 #include <list>
 #include <queue>
 #include <set>
@@ -9,7 +11,30 @@ using namespace Eigen;
 
 #define EPSILON 1e-8
 
-SolverImpl::SolverImpl() { _attributes[kSolverAttribute_FLAGS].int_value = 0; }
+template <typename MatrixType, typename Rhs, typename Dest>
+void lscg_solve_main(const MatrixType &mat, const Rhs &rhs, Dest &x, Dest &x0,
+                     typename MatrixType::Scalar k, Index &iters,
+                     typename Dest::RealScalar &tol_error) {
+    if (k == 0) {
+        LeastSquaresConjugateGradient<MatrixType> lscg;
+        lscg.setMaxIterations(iters);
+        lscg.setTolerance(tol_error);
+        lscg.compute(mat);
+        x = lscg.solveWithGuess(rhs, x);
+        tol_error = lscg.tolerance();
+        iters = lscg.iterations();
+    } else {
+        RegularizedLeastSquareDiagonalPreconditioner<number_t> preconditioner(k);
+        preconditioner.compute(mat);
+        regularized_least_square_conjugate_gradient(mat, rhs, x, x0, k, preconditioner, iters,
+                                                    tol_error);
+    }
+}
+
+SolverImpl::SolverImpl() {
+    _attributes[kSolverAttribute_REGULARIZER_WEIGHT].float_value = 0;
+    _attributes[kSolverAttribute_FLAGS].int_value = 0;
+}
 
 void SolverImpl::add_variable(int name, number_t value, bool edit) {
     Variable var;
@@ -21,7 +46,7 @@ void SolverImpl::add_variable(int name, number_t value, bool edit) {
 void SolverImpl::make_constant(int variable_name) { _variables[variable_name].edit = false; }
 
 int SolverImpl::add_constraint(int strength, number_t bias, int count, int *variable_names,
-                                       number_t *weights) {
+                               number_t *weights) {
     Constraint c;
     c.strength = strength;
     c.bias = bias;
@@ -140,22 +165,24 @@ void SolverImpl::solveNormal() {
         }
     }
 
-    LeastSquaresConjugateGradient<SparseMatrix<double>> lscg;
+    Eigen::Index iters = 2 * A.cols();
+    double tol_error = NumTraits<number_t>::epsilon();
 
     if (_attributes.find(kSolverAttribute_TOLERANCE) != _attributes.end()) {
-        lscg.setTolerance(_attributes[kSolverAttribute_TOLERANCE].float_value);
+        iters = _attributes[kSolverAttribute_TOLERANCE].float_value;
     }
     if (_attributes.find(kSolverAttribute_MAX_ITERATIONS) != _attributes.end()) {
-        lscg.setMaxIterations(_attributes[kSolverAttribute_MAX_ITERATIONS].int_value);
+        tol_error = _attributes[kSolverAttribute_MAX_ITERATIONS].int_value;
     }
 
-    lscg.compute(A);
-    x = lscg.solveWithGuess(b, x0);
+    x = x0;
+    lscg_solve_main(A, b, x, x0, _attributes[kSolverAttribute_REGULARIZER_WEIGHT].float_value,
+                    iters, tol_error);
 
     _attributes[kSolverAttribute_NUM_VARIABLES].int_value = variable_count;
     _attributes[kSolverAttribute_NUM_CONSTRAINTS].int_value = constraint_count;
-    _attributes[kSolverAttribute_NUM_ITERATIONS].int_value = lscg.iterations();
-    _attributes[kSolverAttribute_ERROR].float_value = lscg.error();
+    _attributes[kSolverAttribute_NUM_ITERATIONS].int_value = iters;
+    _attributes[kSolverAttribute_ERROR].float_value = tol_error;
 
     for (auto &it : _variables) {
         if (it.second.edit) {
@@ -523,19 +550,23 @@ class Snapshot {
             }
         }
 
-        LeastSquaresConjugateGradient<SparseMatrix<double>> lscg;
+        Eigen::Index iters = 2 * A.cols();
+        double tol_error = NumTraits<number_t>::epsilon();
+
         if (_attributes.find(kSolverAttribute_TOLERANCE) != _attributes.end()) {
-            lscg.setTolerance(_attributes[kSolverAttribute_TOLERANCE].float_value);
+            tol_error = _attributes[kSolverAttribute_TOLERANCE].float_value;
         }
         if (_attributes.find(kSolverAttribute_MAX_ITERATIONS) != _attributes.end()) {
-            lscg.setMaxIterations(_attributes[kSolverAttribute_MAX_ITERATIONS].int_value);
+            iters = _attributes[kSolverAttribute_MAX_ITERATIONS].int_value;
         }
 
+        x = x0;
         if (constraint_count > 0) {
-            lscg.compute(A);
-            x = lscg.solveWithGuess(b, x0);
-            _attributes[kSolverAttribute_NUM_ITERATIONS].int_value = lscg.iterations();
-            _attributes[kSolverAttribute_ERROR].float_value = lscg.error();
+            lscg_solve_main(A, b, x, x0,
+                            _attributes[kSolverAttribute_REGULARIZER_WEIGHT].float_value, iters,
+                            tol_error);
+            _attributes[kSolverAttribute_NUM_ITERATIONS].int_value = iters;
+            _attributes[kSolverAttribute_ERROR].float_value = tol_error;
         } else {
             _attributes[kSolverAttribute_NUM_ITERATIONS].int_value = 0;
             _attributes[kSolverAttribute_ERROR].float_value = 0;

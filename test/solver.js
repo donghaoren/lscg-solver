@@ -179,4 +179,39 @@ describe("Solver API", () => {
 
     solver.destroy();
   });
+
+  it("unused variable (normal)", () => {
+    let solver = new m.ConstraintSolver();
+    solver.addVariable(1, 10, true);
+    solver.addVariable(2, 10, true);
+    solver.addVariable(3, 20, true);
+    solver.addConstraint(m.ConstraintSolver.STRENGTH_HARD, 0, [2, 3], [1, -1]);
+    solver.flags = m.ConstraintSolver.FLAG_DEFAULT;
+    solver.regularizerWeight = 0.0001;
+    solver.solve();
+
+    // Variable 1 is not constrained, it should have the same value
+    assert_equal(solver.getValue(1), 10);
+    // Variable 2 and 3 should be 15 because the regularizer is applying the same weights to them
+    assert_equal(solver.getValue(2), 15);
+    assert_equal(solver.getValue(3), 15);
+
+    solver.destroy();
+  });
+  it("unused variable (reduce)", () => {
+    let solver = new m.ConstraintSolver();
+    solver.addVariable(1, 10, true);
+    solver.addVariable(2, 10, true);
+    solver.addVariable(3, 20, true);
+    solver.addConstraint(m.ConstraintSolver.STRENGTH_HARD, 0, [2, 3], [1, -1]);
+    solver.flags = m.ConstraintSolver.FLAG_REDUCE;
+    solver.regularizerWeight = 0.0001;
+    solver.solve();
+
+    // Variable 1 is not constrained, it should have the same value
+    assert_equal(solver.getValue(1), 10);
+    // Variable 2 and 3 are not guaranteed to keep their values in REDUCE mode
+
+    solver.destroy();
+  });
 });

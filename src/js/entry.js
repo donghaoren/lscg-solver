@@ -72,6 +72,8 @@ var kSolverAttribute_ERROR = 13;
 var kSolverAttribute_HARD_LOSS = 20;
 var kSolverAttribute_SOFT_LOSS = 21;
 
+var kSolverAttribute_REGULARIZER_WEIGHT = 30;
+
 var kSolverFlag_DEFAULT = 0;
 var kSolverFlag_REDUCE = 1 << 1;
 var kSolverFlag_LAGRANGE = 1 << 2;
@@ -397,6 +399,7 @@ function defineSolverProperty(name, string_name, type, ro) {
   }
   Object.defineProperty(ConstraintSolver.prototype, string_name, desc);
 }
+defineSolverProperty(kSolverAttribute_REGULARIZER_WEIGHT, "regularizerWeight", "f");
 defineSolverProperty(kSolverAttribute_MAX_ITERATIONS, "maxIterations", "i");
 defineSolverProperty(kSolverAttribute_TOLERANCE, "tolerance", "f");
 defineSolverProperty(kSolverAttribute_FLAGS, "flags", "i");

@@ -67,6 +67,8 @@ const int kSolverAttribute_ERROR = 13;
 const int kSolverAttribute_HARD_LOSS = 20;
 const int kSolverAttribute_SOFT_LOSS = 21;
 
+const int kSolverAttribute_REGULARIZER_WEIGHT = 30;
+
 const int kSolverFlag_DEFAULT = 0;
 const int kSolverFlag_REDUCE = 1 << 1;
 const int kSolverFlag_LAGRANGE = 1 << 2;

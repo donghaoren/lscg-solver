@@ -65,6 +65,8 @@ export class ConstraintSolver {
   maxIterations: number;
   /** Parameter: max iterations, default to the platform's epsilon */
   tolerance: number;
+  /** Parameter: regularizerWeight, add a weight * ||x-x0||^2 to the minimization equation to help keep x close to x0 */
+  regularizerWeight: number;
 
   /** Parameter: flags, default to FLAG_DEFAULT (0) */
   flags: number;
