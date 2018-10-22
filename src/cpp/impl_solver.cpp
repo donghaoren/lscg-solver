@@ -169,10 +169,10 @@ void SolverImpl::solveNormal() {
     double tol_error = NumTraits<number_t>::epsilon();
 
     if (_attributes.find(kSolverAttribute_TOLERANCE) != _attributes.end()) {
-        iters = _attributes[kSolverAttribute_TOLERANCE].float_value;
+        tol_error = _attributes[kSolverAttribute_TOLERANCE].float_value;
     }
     if (_attributes.find(kSolverAttribute_MAX_ITERATIONS) != _attributes.end()) {
-        tol_error = _attributes[kSolverAttribute_MAX_ITERATIONS].int_value;
+        iters = _attributes[kSolverAttribute_MAX_ITERATIONS].int_value;
     }
 
     x = x0;
