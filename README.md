@@ -33,7 +33,7 @@ Once you have the solver imported, call the `initialize` method before using any
 
 ```javascript
 LSCGSolver.initialize().then(() => {
-    // Code that use the solver
+    // Code that uses the solver
 });
 ```
 
